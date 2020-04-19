@@ -1,0 +1,15 @@
+canvas{
+    border: 1px solid #d3d3d3;
+    background-color: lightgrey;
+}
+button{
+    width: 130px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: deepskyblue;
+    font-family: "Arial", serif;
+    font-size: large;
+    font-weight: bold;
+}
+
+

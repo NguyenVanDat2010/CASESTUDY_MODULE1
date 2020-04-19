@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="GameFlappyBird.css">
+    <script src="GameFlappyBird.js"></script>
+</head>
+<body onload="startGame();">
+<!--<canvas id="myCanvas" width="480" height="270"></canvas>-->
+<div style="text-align: center; width: 480px">
+    <button onmousedown="flyBird1()" onmouseup="flyBird2()" ontouchstart="flyBird1()" ontouchend="flyBird2()">FLY</button>
+    <button onclick="restart()">RESTART</button>
+    <p align="left">Nhấp vào nút FLY để bắt đầu trò chơi!!</p>
+    <p align="left">Bạn có thể sống được bao lâu? Sử dụng nút FLY để bay trong không khí, RESTART để khởi động lại trò chơi .. </p>
+</div>
+<script>
+    function restart() {
+        document.location.reload();
+    }
+</script>
+</body>
+</html>
