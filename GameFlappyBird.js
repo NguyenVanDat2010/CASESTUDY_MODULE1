@@ -9,12 +9,12 @@ let myGameOver;
 
 //Tạo hàm startGame gọi trong onload------------------------------------------------------------------------------------
 function startGame() {
-    myGameBird=new Component(200,120,'./images/bird1.png',30,30,'image');
+    myGameBird=new Component(200,120,'./images/bird.png',30,30,'image');
+    myGameOver=new Component(75,50,'./images/gameOver.png',450,250,'image');
+    myBackground=new Component(0,0,'./images/backgound1.jpg',600,350,'image');
     mySoundOver=new SoundGame('./sounds/soundOver.mp3');
     mySoundBird=new SoundGame('./sounds/flappingBird.mp3');
     myScore=new Component(420,40,'aquamarine','30px','Eras Demi ITC','text');
-    myGameOver=new Component(135,165,'red','50px','Arial Black','text');
-    myBackground=new Component(0,0,'./images/backgound1.jpg',600,350,'image');
     myGameArea.start();
 }
 
@@ -30,7 +30,7 @@ let myGameArea = {
         //khởi tạo số khung hình =0
         this.frameNo=0;
         //setInterval () sẽ tiếp tục gọi hàm cho đến khi gọi ClearInterval () hoặc cửa sổ được đóng lại
-        this.interval =setInterval(updateGameArea,13);
+        this.interval =setInterval(updateGameArea,15);
 
         //phương thức kiểm tra nếu một phím được nhấn
         window.addEventListener('keydown', function (e) {
@@ -38,10 +38,10 @@ let myGameArea = {
         });
         window.addEventListener('keyup', function (e) {
             myGameArea.key = (myGameBird.gravity = 0.1);
-            myGameBird.image.src='./images/bird1.png';
+            myGameBird.image.src='./images/bird.png';
         });
     },
-    //clearRect () xóa các pixel được chỉ định trong một hình chữ nhật đã cho.
+    //clearRect xóa hình chữ nhật canvas.
     clear: function () {
         this.context.clearRect(0,0,this.canvas.width,this.canvas.height)
     },
@@ -161,12 +161,15 @@ function updateGameArea() {
     //gọi tới sự cố, nếu va chạm set dừng game
     for (let i = 0 ; i < myObstacle.length ; i++) {
         if (myGameBird.crashWith(myObstacle[i])||myGameBird.yPosition==rockBottom) {
+
+            myGameBird.image.src='./images/birdFall.png';
+            myGameBird.update();
             mySoundOver.play();
             mySoundBird.stop();
+            myGameOver.update();
+
             myGameArea.stop();
             //alert("Game Over");
-            myGameOver.text="GAME OVER";
-            myGameOver.update();
             return;
         }
         score+=1/2;
@@ -175,26 +178,8 @@ function updateGameArea() {
         score=0;
     }
 
-    // Check browser support
-    if (typeof(Storage) !== "undefined") {
-        // Store
-        localStorage.setItem("Score", maxScore);
-
-        // Retrieve
-        localStorage.getItem("Score");
-        if (localStorage.getItem("Score")<score){
-            localStorage.setItem("Score", score);
-            localStorage.getItem("Score");
-            console.log(localStorage.setItem("Score", score));
-            document.getElementById("score").innerHTML =localStorage.getItem("Score")
-        }
-    } else {
-        document.getElementById("score").innerHTML = "Sorry, your browser does not support Web Storage...";
-    }
-
     myGameArea.clear();
     //Hình nền.....................
-    myBackground.newPos();
     myBackground.update();
     myGameArea.frameNo+=1;
     
@@ -210,9 +195,9 @@ function updateGameArea() {
         //lấy khoảng trống ngẫu nhiên từ 50 đến 150
         gap=Math.floor(Math.random()*(maxGap-minGap)+minGap);
         //lấy x=480, y=độ cao + khoảng trống (vẽ từ trên xuống theo tọa độ)
-        myObstacle.push(new Component(x, 0, color, 30, height));
+        myObstacle.push(new Component(x, 0, color, 35, height));
         //lấy x=480, y=0(vẽ từ trên xuống theo tọa độ)
-        myObstacle.push(new Component(x,height+gap,color,30,x-height-gap));
+        myObstacle.push(new Component(x,height+gap,color,35,x-height-gap));
     }
     for (let j=0;j<myObstacle.length;j++){
         myObstacle[j].xPosition-=1;
@@ -221,7 +206,7 @@ function updateGameArea() {
     //Gọi keyCode (Space)
     switch (myGameArea.key) {
         case 32 :
-            flyBird1();
+            birdFly();
             break;
     }
 
@@ -248,14 +233,14 @@ function SoundGame(src) {
 }
 
 //chức năng nhấp vào nút và làm cho bird bay lên (thúc dục)
-function flyBird1() {
+function birdFly() {
     myGameBird.gravity = -0.2;
-    myGameBird.image.src='./images/bird2.png';
+    myGameBird.image.src='./images/birdFly.png';
     mySoundBird.play();
 }
-function flyBird2() {
+function birdFall() {
     myGameBird.gravity = 0.1;
-    myGameBird.image.src='./images/bird1.png';
+    myGameBird.image.src='./images/bird.png';
     mySoundBird.stop();
 }
 

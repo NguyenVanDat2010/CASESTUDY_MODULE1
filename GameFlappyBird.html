@@ -10,7 +10,7 @@
 <body onload="startGame();">
 <!--<canvas id="myCanvas" width="480" height="270"></canvas>-->
 <div style="text-align: center; width: 600px">
-    <button onmousedown="flyBird1()" onmouseup="flyBird2()" ontouchstart="flyBird1()" ontouchend="flyBird2()">FLY</button>
+    <button onmousedown="birdFly()" onmouseup="birdFall()" ontouchstart="birdFly()" ontouchend="birdFall()">FLY</button>
     <button onclick="restart()">RESTART</button>
     <p align="left">Nhấp vào nút FLY để bắt đầu trò chơi!!</p>
     <p align="left">Bạn có thể sống được bao lâu? Sử dụng nút FLY or SPACE để bay trong không khí, RESTART để khởi động lại trò chơi .. </p>
@@ -19,7 +19,6 @@
     function restart() {
         document.location.reload();
     }
-
 </script>
 </body>
 </html>
