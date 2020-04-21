@@ -4,14 +4,17 @@ let myScore;
 let myBackground;
 let mySoundOver;
 let mySoundBird;
+let myGameOver;
 // window.onload = function() {startGame()};
 
+//Tạo hàm startGame gọi trong onload------------------------------------------------------------------------------------
 function startGame() {
-    myGameBird=new Component(130,120,'./images/bird1.png',30,30,'image');
+    myGameBird=new Component(200,120,'./images/bird1.png',30,30,'image');
     mySoundOver=new SoundGame('./sounds/soundOver.mp3');
     mySoundBird=new SoundGame('./sounds/flappingBird.mp3');
-    myScore=new Component(280,40,'white','30px','Consolas','text');
-    myBackground=new Component(0,0,'./images/backgound.jpg',480,270,'image');
+    myScore=new Component(420,40,'aquamarine','30px','Eras Demi ITC','text');
+    myGameOver=new Component(135,165,'red','50px','Arial Black','text');
+    myBackground=new Component(0,0,'./images/backgound1.jpg',600,350,'image');
     myGameArea.start();
 }
 
@@ -19,15 +22,24 @@ function startGame() {
 let myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 480;
-        this.canvas.height = 270;
+        this.canvas.width = 600;
+        this.canvas.height = 350;
         this.context = this.canvas.getContext("2d");
         //insertBefore Chèn hoặc di chuyển một thành phần vào ngay trước mục tiêu được chọn.
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         //khởi tạo số khung hình =0
         this.frameNo=0;
         //setInterval () sẽ tiếp tục gọi hàm cho đến khi gọi ClearInterval () hoặc cửa sổ được đóng lại
-        this.interval =setInterval(updateGameArea,20);
+        this.interval =setInterval(updateGameArea,13);
+
+        //phương thức kiểm tra nếu một phím được nhấn
+        window.addEventListener('keydown', function (e) {
+            myGameArea.key = e.keyCode;
+        });
+        window.addEventListener('keyup', function (e) {
+            myGameArea.key = (myGameBird.gravity = 0.1);
+            myGameBird.image.src='./images/bird1.png';
+        });
     },
     //clearRect () xóa các pixel được chỉ định trong một hình chữ nhật đã cho.
     clear: function () {
@@ -39,7 +51,7 @@ let myGameArea = {
     }
 };
 
-//Kiểm tra số khung hình đủ n lần thì return true
+//Kiểm tra số khung hình đủ n lần thì return true (vẽ vật cản )---------------------------------------------------------
 function everyInterval(n) {
     if ((myGameArea.frameNo/n)%1==0){
         return true;
@@ -52,7 +64,7 @@ function Component (xPosition,yPosition,color,width,height,type) {
     this.type=type;
     this.color = color;
     ctx = myGameArea.context;
-    if (this.type=='image'){
+    if (this.type=='image'||this.type=='line'){
         this.image=new Image();
         this.image.src=this.color;
     }
@@ -71,8 +83,11 @@ function Component (xPosition,yPosition,color,width,height,type) {
     //vẽ và cập nhật bird img
     this.update = function(){
         ctx = myGameArea.context;
-        if (this.type=='image'){
+        if (this.type=='image'||this.type=='line'){
             ctx.drawImage(this.image , this.xPosition , this.yPosition , this.width , this.height);
+            if (this.type='line'){
+
+            }
         }else
         if (this.type=='text'){
             ctx.font=this.width+' '+this.height;
@@ -84,7 +99,7 @@ function Component (xPosition,yPosition,color,width,height,type) {
         }
     };
 
-    //vị trí và tư thế mới (thay đổi vị trí của thành phần) và thêm trọng lực rơi
+    // vị trí và tư thế mới (thay đổi,kiểm soát vị trí của bird) và thêm trọng lực rơi
     this.newPos=function () {
         this.gravitySpeed+=this.gravity;
         this.xPosition+=this.xSpeed;
@@ -134,7 +149,7 @@ function getRandomColor() {
 
 //cập nhật khung hinh 50 lần mỗi giây-----------------------------------------------------------------------------------
 function updateGameArea() {
-    let x, height, gap, minHeight, maxHeight, minGap, maxGap,score=-2;
+    let x, height, gap, minHeight, maxHeight, minGap, maxGap,score=-3,maxScore=0;
     let color=getRandomColor();
 
     //Xét thua nếu rơi chạm đất...........
@@ -149,7 +164,9 @@ function updateGameArea() {
             mySoundOver.play();
             mySoundBird.stop();
             myGameArea.stop();
-            alert("Game Over");
+            //alert("Game Over");
+            myGameOver.text="GAME OVER";
+            myGameOver.update();
             return;
         }
         score+=1/2;
@@ -157,6 +174,24 @@ function updateGameArea() {
     if (score<0){
         score=0;
     }
+
+    // Check browser support
+    if (typeof(Storage) !== "undefined") {
+        // Store
+        localStorage.setItem("Score", maxScore);
+
+        // Retrieve
+        localStorage.getItem("Score");
+        if (localStorage.getItem("Score")<score){
+            localStorage.setItem("Score", score);
+            localStorage.getItem("Score");
+            console.log(localStorage.setItem("Score", score));
+            document.getElementById("score").innerHTML =localStorage.getItem("Score")
+        }
+    } else {
+        document.getElementById("score").innerHTML = "Sorry, your browser does not support Web Storage...";
+    }
+
     myGameArea.clear();
     //Hình nền.....................
     myBackground.newPos();
@@ -164,7 +199,7 @@ function updateGameArea() {
     myGameArea.frameNo+=1;
     
     //kiểm tra cứ sau 180 khung hình sẽ vẽ random 1 chướng ngại vật
-    if (myGameArea.frameNo==1||everyInterval(170)){
+    if (myGameArea.frameNo==1||everyInterval(150)){
         x=myGameArea.canvas.width;
         minHeight=20;
         maxHeight=200;
@@ -175,13 +210,19 @@ function updateGameArea() {
         //lấy khoảng trống ngẫu nhiên từ 50 đến 150
         gap=Math.floor(Math.random()*(maxGap-minGap)+minGap);
         //lấy x=480, y=độ cao + khoảng trống (vẽ từ trên xuống theo tọa độ)
-        myObstacle.push(new Component(x, 0, color, 15, height));
+        myObstacle.push(new Component(x, 0, color, 30, height));
         //lấy x=480, y=0(vẽ từ trên xuống theo tọa độ)
-        myObstacle.push(new Component(x,height+gap,color,15,x-height-gap));
+        myObstacle.push(new Component(x,height+gap,color,30,x-height-gap));
     }
     for (let j=0;j<myObstacle.length;j++){
         myObstacle[j].xPosition-=1;
         myObstacle[j].update();
+    }
+    //Gọi keyCode (Space)
+    switch (myGameArea.key) {
+        case 32 :
+            flyBird1();
+            break;
     }
 
     myScore.text="SCORE: "+score;
